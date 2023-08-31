@@ -12,5 +12,31 @@
  * ```
  * */
 export default class Team {
-  // TODO: write your logic here
+  constructor() {
+    this.members = new Set();
+  }
+
+  add(char) {
+    if (this.members.has(char)) {
+      throw new Error(`Этот герой уже добавлен - ${char.name}`);
+    }
+    this.members.add(char);
+  }
+
+  addAll(...args) {
+    args.forEach((item) => {
+      this.members.add(item);
+    });
+  }
+
+  toArray() {
+    return Array.from(this.members);
+  }
+
+  *[Symbol.iterator]() {
+    const teamArr = this.toArray();
+    for (let i = 0; i < teamArr.length; i += 1) {
+      yield teamArr[i];
+    }
+  }
 }
