@@ -1,12 +1,19 @@
+import {
+  rowPosition,
+  startIndexOfRow,
+  finishIndexOfRow,
+  characterTypeMoveDistanse,
+} from "./utilsHero";
+
 export function heroMove(heroType, heroPosition, boardSize) {
   // длина хода выбранного героя
-  const heroDistansMove = characterTypeDistanseMove(heroType);
+  const heroDistansMove = characterTypeMoveDistanse(heroType);
   // строка на которой находится выбранный герой
   const row = rowPosition(heroPosition, boardSize);
   // начальный индекс строки выбранного героя
-  const startRow = boardSize * row - boardSize;
+  const startRow = startIndexOfRow(row, boardSize);
   // конечный индекс строки выбранного героя
-  const finishRow = boardSize * row - 1;
+  const finishRow = finishIndexOfRow(row, boardSize);
 
   const allowedMoves = [
     ...HorizontalMove(heroDistansMove, heroPosition, startRow, finishRow),
@@ -64,7 +71,7 @@ function diagonalMove(heroDistansMove, heroPosition, boardSize) {
   for (let i = 1; i <= heroDistansMove; i++) {
     const step = heroPosition - boardSize * i - i;
     const row = rowPosition(step + i, boardSize);
-    const startRow = boardSize * row - boardSize;
+    const startRow = startIndexOfRow(row, boardSize);
     if (step < 0 || step < startRow) {
       break;
     }
@@ -74,7 +81,7 @@ function diagonalMove(heroDistansMove, heroPosition, boardSize) {
   for (let i = 1; i <= heroDistansMove; i++) {
     const step = heroPosition - boardSize * i + i;
     const row = rowPosition(step - i, boardSize);
-    const finishRow = boardSize * row - 1;
+    const finishRow = finishIndexOfRow(row, boardSize);
     if (step < 0 || step > finishRow) {
       break;
     }
@@ -84,7 +91,7 @@ function diagonalMove(heroDistansMove, heroPosition, boardSize) {
   for (let i = 1; i <= heroDistansMove; i++) {
     const step = heroPosition + boardSize * i + i;
     const row = rowPosition(step - i, boardSize);
-    const finishRow = boardSize * row - 1;
+    const finishRow = finishIndexOfRow(row, boardSize);
     if (step > boardSize ** 2 || step > finishRow) {
       break;
     }
@@ -94,42 +101,11 @@ function diagonalMove(heroDistansMove, heroPosition, boardSize) {
   for (let i = 1; i <= heroDistansMove; i++) {
     const step = heroPosition + boardSize * i - i;
     const row = rowPosition(step + i, boardSize);
-    const startRow = boardSize * row - boardSize;
+    const startRow = startIndexOfRow(row, boardSize);
     if (step > boardSize ** 2 || step < startRow) {
       break;
     }
     diagonal.push(step);
   }
   return diagonal;
-}
-
-/**
- * Функция возвращает длину хода выбранного героя
- * @param heroType - string - тип героя
- * @returns numder - длина хода
- */
-function characterTypeDistanseMove(heroType) {
-  switch (heroType) {
-    case "swordsman":
-    case "undead":
-      return 4;
-    case "bowman":
-    case "vampire":
-      return 2;
-    case "magician":
-    case "daemon":
-      return 1;
-    default:
-      throw new Error("В функцию передан несуществующий тип героя.");
-  }
-}
-
-/**
- * функция возвращает номер строки поля на которой находится выбранный герой
- * @param heroPosition - индекс позиции героя на поле
- * @param boardSize - размер стороны квадрата поля
- * @returns - number - номер строки поля на которой находится выбранный герой
- */
-function rowPosition(heroPosition, boardSize) {
-  return (heroPosition - (heroPosition % boardSize)) / boardSize + 1;
 }
