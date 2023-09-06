@@ -1,8 +1,8 @@
 import themes from "./themes";
 import { generateTeam } from "./generators";
-import { startPositions } from "./utils";
-import { heroFormatInfo } from "./utilsHero";
-import PositionedCharacter from "./PositionedCharacter";
+import { startPositions } from "./utils/utils";
+import { heroFormatInfo } from "./utils/utilsHero";
+import PositionedCharacter from "./characters/PositionedCharacter";
 import Bowman from "./characters/Bowman";
 import Swordsman from "./characters/Swordsman";
 import Magician from "./characters/Magician";
@@ -14,6 +14,7 @@ import GamePlay from "./GamePlay";
 import cursors from "./cursors";
 import { heroMove } from "./heroMove";
 import { heroAttack } from "./heroAttack";
+import { opponentsMove } from "./opponents.Move";
 
 export default class GameController {
   constructor(gamePlay, stateService) {
@@ -142,13 +143,48 @@ export default class GameController {
     }
     // клик по пустой клетке
     // снимает выбор с уже выбранного героя
-    // (TODO: в дальнейшем проверяет возможен ли сюда ход выбранным героем)
-    // if (GameState.selectedHero !== null) {
-    //   this.gamePlay.deselectCell(GameState.selectedHero.position);
-    //   GameState.selectedHero = null;
-    //   GameState.allowedMoves = null;
-    //   GameState.allowedAttack = null;
-    // }
+    // ход выбранным героем
+    // переход хода противнику
+    // ход противника
+    if (GameState.selectedHero !== null) {
+      // ход выбранным героем
+      if (GameState.allowedMoves.includes(index)) {
+        this.gamePlay.deselectCell(GameState.selectedHero.position);
+        GameState.selectedHero.position = index;
+        GameState.allowedMoves = heroMove(
+          GameState.selectedHero.character.type,
+          GameState.selectedHero.position,
+          this.gamePlay.boardSize
+        );
+        GameState.allowedAttack = heroAttack(
+          GameState.selectedHero.character.type,
+          GameState.selectedHero.position,
+          this.gamePlay.boardSize
+        );
+        // ход игрока, перересовка поля
+        this.gamePlay.redrawPositions([
+          ...this.goodTeamPositions,
+          ...this.evilTeamPositions,
+        ]);
+        // сброс выбранного героя и переход хода
+        this.gamePlay.deselectCell(index);
+        GameState.selectedHero = null;
+        GameState.allowedMoves = null;
+        GameState.allowedAttack = null;
+        GameState.currentMove = "evil";
+        opponentsMove(
+          this.goodTeamPositions,
+          this.evilTeamPositions,
+          this.gamePlay
+        );
+        return;
+      }
+      // клик по пустой клетке
+      this.gamePlay.deselectCell(GameState.selectedHero.position);
+      GameState.selectedHero = null;
+      GameState.allowedMoves = null;
+      GameState.allowedAttack = null;
+    }
   }
 
   onCellEnter(index) {
@@ -206,7 +242,7 @@ export default class GameController {
       this.gamePlay.setCursor(cursors.auto);
     }
 
-    // если гнрой не выбран
+    // если герой не выбран
     if (!GameState.selectedHero) {
       // на клетки героев добра
       for (let hero of this.goodTeamPositions) {

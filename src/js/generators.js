@@ -1,4 +1,4 @@
-import Team from "./Team";
+import Team from "./characters/Team";
 
 /**
  * Формирует экземпляр персонажа из массива allowedTypes со

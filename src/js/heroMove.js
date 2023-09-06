@@ -3,7 +3,7 @@ import {
   startIndexOfRow,
   finishIndexOfRow,
   characterTypeMoveDistanse,
-} from "./utilsHero";
+} from "./utils/utilsHero";
 
 export function heroMove(heroType, heroPosition, boardSize) {
   // длина хода выбранного героя

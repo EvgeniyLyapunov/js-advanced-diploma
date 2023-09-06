@@ -1,5 +1,5 @@
-import { calcTileType } from "../utils";
-import { heroFormatInfo } from "../utilsHero";
+import { calcTileType } from "../utils/utils";
+import { heroFormatInfo } from "../utils/utilsHero";
 import Bowman from "../characters/Bowman";
 
 test.each([

@@ -3,7 +3,7 @@ import {
   startIndexOfRow,
   finishIndexOfRow,
   characterTypeAttackDistance,
-} from "./utilsHero";
+} from "./utils/utilsHero";
 
 export function heroAttack(heroType, heroPosition, boardSize) {
   // дальность атаки выбранного героя

@@ -77,6 +77,11 @@ body {
   border-style: dashed;
 }
 
+.cell.selected-blood::before {
+  border-color: rgb(158, 2, 2);
+  border-style: double;
+}
+
 .board.prairie {
   --map-tile-top-left-url: url('../img/prairie/map-tile-top-left.png');
   --map-tile-top-url: url('../img/prairie/map-tile-top.png');
