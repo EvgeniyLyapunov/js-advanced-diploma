@@ -14,7 +14,7 @@ import GamePlay from "./GamePlay";
 import cursors from "./cursors";
 import { heroMove } from "./heroMove";
 import { heroAttack } from "./heroAttack";
-import { opponentsMove } from "./opponents.Move";
+import { opponentsMove } from "./opponentsMove";
 
 export default class GameController {
   constructor(gamePlay, stateService) {
@@ -78,10 +78,38 @@ export default class GameController {
     }
 
     // клик по вражескому герою
-    for (let hero of this.evilTeamPositions) {
-      if (hero.position === index) {
-        if (!GameState.selectedHero) GamePlay.showError("This is an enemny!");
-        return;
+    for (let unit of this.evilTeamPositions) {
+      if (unit.position === index) {
+        if (!GameState.selectedHero) {
+          GamePlay.showError("This is an enemny!");
+          return;
+        } else {
+          // проверяем поле атаки героя
+          GameState.currentMove = "evil";
+          if (GameState.allowedAttack.includes(index)) {
+            this.gamePlay.deselectCell(GameState.selectedHero.position);
+            this.gamePlay.deselectCell(index);
+            const damage = Math.max(
+              GameState.selectedHero.character.attack - unit.character.defence,
+              GameState.selectedHero.character.attack * 0.5
+            );
+            GameState.totalReset();
+            this.gamePlay.showDamage(index, damage).then(() => {
+              unit.character.health -= damage;
+              if (unit.character.health <= 0) {
+                this.evilTeamPositions = this.evilTeamPositions.filter(
+                  (char) => char.character.health > 0
+                );
+              }
+              this.gamePlay.redrawPositions([
+                ...this.goodTeamPositions,
+                ...this.evilTeamPositions,
+              ]);
+              opponentsMove.call(this, this);
+            });
+            return;
+          }
+        }
       }
     }
 
@@ -120,9 +148,7 @@ export default class GameController {
           GameState.selectedHero.position === index
         ) {
           this.gamePlay.deselectCell(GameState.selectedHero.position);
-          GameState.selectedHero = null;
-          GameState.allowedMoves = null;
-          GameState.allowedAttack = null;
+          GameState.totalReset();
           return;
         }
         // клик по невыбранному герою, другие герои тоже не выбраны
@@ -150,52 +176,38 @@ export default class GameController {
       // ход выбранным героем
       if (GameState.allowedMoves.includes(index)) {
         this.gamePlay.deselectCell(GameState.selectedHero.position);
+        this.gamePlay.deselectCell(index);
         GameState.selectedHero.position = index;
-        GameState.allowedMoves = heroMove(
-          GameState.selectedHero.character.type,
-          GameState.selectedHero.position,
-          this.gamePlay.boardSize
-        );
-        GameState.allowedAttack = heroAttack(
-          GameState.selectedHero.character.type,
-          GameState.selectedHero.position,
-          this.gamePlay.boardSize
-        );
-        // ход игрока, перересовка поля
+        // ход игрока, перерисовка поля
         this.gamePlay.redrawPositions([
           ...this.goodTeamPositions,
           ...this.evilTeamPositions,
         ]);
         // сброс выбранного героя и переход хода
-        this.gamePlay.deselectCell(index);
-        GameState.selectedHero = null;
-        GameState.allowedMoves = null;
-        GameState.allowedAttack = null;
+        GameState.totalReset();
+
         GameState.currentMove = "evil";
-        opponentsMove(
-          this.goodTeamPositions,
-          this.evilTeamPositions,
-          this.gamePlay
-        );
+        opponentsMove.call(this, this);
         return;
       }
       // клик по пустой клетке
       this.gamePlay.deselectCell(GameState.selectedHero.position);
-      GameState.selectedHero = null;
-      GameState.allowedMoves = null;
-      GameState.allowedAttack = null;
+      GameState.totalReset();
     }
   }
 
   onCellEnter(index) {
     // TODO: react to mouse enter
+    if (GameState.currentMove === "evil") {
+      return;
+    }
     // курсор входит в пустую клетку, но герой уже выбран
     if (GameState.selectedHero && GameState.selectedHero.position !== index) {
       // если индекс в поле атаки
       if (GameState.allowedAttack.includes(index)) {
-        for (let hero of this.evilTeamPositions) {
+        for (let unit of this.evilTeamPositions) {
           // если враг в поле атаки
-          if (hero.position === index) {
+          if (unit.position === index) {
             this.gamePlay.setCursor(cursors.crosshair);
             this.gamePlay.selectCell(index, "red");
             return;
@@ -225,8 +237,8 @@ export default class GameController {
       }
 
       // на врага вне досягаемости для хода и атаки
-      for (let hero of this.evilTeamPositions) {
-        if (hero.position === index) {
+      for (let unit of this.evilTeamPositions) {
+        if (unit.position === index) {
           this.gamePlay.setCursor(cursors.notallowed);
           return;
         }
@@ -254,10 +266,10 @@ export default class GameController {
         }
       }
       // на клетки героев зла
-      for (let hero of this.evilTeamPositions) {
-        if (hero.position === index) {
+      for (let unit of this.evilTeamPositions) {
+        if (unit.position === index) {
           this.gamePlay.setCursor(cursors.notallowed);
-          const message = heroFormatInfo(hero.character);
+          const message = heroFormatInfo(unit.character);
           this.gamePlay.showCellTooltip(message, index);
           return;
         }

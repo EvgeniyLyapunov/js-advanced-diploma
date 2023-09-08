@@ -5,6 +5,13 @@ import {
   characterTypeAttackDistance,
 } from "./utils/utilsHero";
 
+/**
+ * функция расчитывает все варианты атаки из указанного индекса
+ * @param heroType - тип юнита или героя
+ * @param heroPosition - индекс на поле
+ * @param boardSize - размер стороны поля
+ * @returns массив индексов всех вариантов атаки
+ */
 export function heroAttack(heroType, heroPosition, boardSize) {
   // дальность атаки выбранного героя
   const heroDistansAttack = characterTypeAttackDistance(heroType);

@@ -5,6 +5,13 @@ import {
   characterTypeMoveDistanse,
 } from "./utils/utilsHero";
 
+/**
+ * функция расчитывает все варианты движения из указанного индекса
+ * @param heroType - тип юнита или героя
+ * @param heroPosition - индекс на поле
+ * @param boardSize - размер стороны поля
+ * @returns массив индексов всех вариантов движения
+ */
 export function heroMove(heroType, heroPosition, boardSize) {
   // длина хода выбранного героя
   const heroDistansMove = characterTypeMoveDistanse(heroType);
