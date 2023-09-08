@@ -1,5 +1,4 @@
-import themes from "./themes";
-import { generateTeam } from "./generators";
+import { generateTeam, newTeam, newTeamWithSurvivors } from "./generators";
 import { startPositions } from "./utils/utils";
 import { heroFormatInfo } from "./utils/utilsHero";
 import PositionedCharacter from "./characters/PositionedCharacter";
@@ -23,41 +22,29 @@ export default class GameController {
     this.goodAllowedTypes = [Bowman, Swordsman, Magician];
     this.evilAllowedTypes = [Vampire, Undead, Daemon];
     this.teamCount = 3;
-    this.maxStartHeroLevel = 2;
+    this.HeroLevel = 1;
     this.goodTeamPositions = [];
     this.evilTeamPositions = [];
   }
 
   init() {
-    this.gamePlay.drawUi(themes.prairie);
+    this.gamePlay.drawUi(GameState.nextTheme());
 
-    const goodTeam = generateTeam(
+    this.goodTeamPositions = newTeam(
       this.goodAllowedTypes,
-      this.maxStartHeroLevel,
-      this.teamCount
-    );
-    const goodStart = startPositions(
-      this.gamePlay.boardSize,
       "good",
-      this.teamCount
+      this.HeroLevel,
+      this.teamCount,
+      this.gamePlay.boardSize
     );
-    this.goodTeamPositions = goodTeam.toArray().map((hero, i) => {
-      return new PositionedCharacter(hero, goodStart[i]);
-    });
 
-    const evilTeam = generateTeam(
+    this.evilTeamPositions = newTeam(
       this.evilAllowedTypes,
-      this.maxStartHeroLevel,
-      this.teamCount
-    );
-    const evilStart = startPositions(
-      this.gamePlay.boardSize,
       "evil",
-      this.teamCount
+      this.HeroLevel,
+      this.teamCount,
+      this.gamePlay.boardSize
     );
-    this.evilTeamPositions = evilTeam.toArray().map((hero, i) => {
-      return new PositionedCharacter(hero, evilStart[i]);
-    });
 
     this.gamePlay.redrawPositions([
       ...this.goodTeamPositions,
@@ -101,12 +88,43 @@ export default class GameController {
                   (char) => char.character.health > 0
                 );
               }
+
+              // все враги убиты - переход на новый уровень
+              if (this.evilTeamPositions.length === 0) {
+                this.gamePlay.drawUi(GameState.nextTheme());
+                this.HeroLevel = this.HeroLevel + 1;
+                console.log(this.HeroLevel);
+                this.goodTeamPositions = newTeamWithSurvivors(
+                  this.goodTeamPositions,
+                  this.goodAllowedTypes,
+                  this.HeroLevel,
+                  this.teamCount,
+                  this.gamePlay.boardSize
+                );
+
+                this.evilTeamPositions = newTeam(
+                  this.evilAllowedTypes,
+                  "evil",
+                  this.HeroLevel,
+                  this.teamCount,
+                  this.gamePlay.boardSize
+                );
+
+                this.gamePlay.redrawPositions([
+                  ...this.goodTeamPositions,
+                  ...this.evilTeamPositions,
+                ]);
+                GameState.currentMove = "good";
+                return;
+              }
+
               this.gamePlay.redrawPositions([
                 ...this.goodTeamPositions,
                 ...this.evilTeamPositions,
               ]);
               opponentsMove.call(this, this);
             });
+            GameState.currentMove = "good";
             return;
           }
         }

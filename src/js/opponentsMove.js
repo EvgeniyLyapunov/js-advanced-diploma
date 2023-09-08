@@ -36,10 +36,17 @@ export function opponentsMove(gc) {
                 (hero) => hero.character.health > 0
               );
             }
+
             gc.gamePlay.redrawPositions([
               ...gc.goodTeamPositions,
               ...gc.evilTeamPositions,
             ]);
+
+            // зло победило
+            if (gc.goodTeamPositions.length === 0) {
+              GameState.currentMove = "evil";
+              return;
+            }
           });
         });
         GameState.currentMove = "good";
