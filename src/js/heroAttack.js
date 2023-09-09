@@ -3,7 +3,7 @@ import {
   startIndexOfRow,
   finishIndexOfRow,
   characterTypeAttackDistance,
-} from "./utils/utilsHero";
+} from './utils/utilsHero';
 
 /**
  * функция расчитывает все варианты атаки из указанного индекса
@@ -12,7 +12,7 @@ import {
  * @param boardSize - размер стороны поля
  * @returns массив индексов всех вариантов атаки
  */
-export function heroAttack(heroType, heroPosition, boardSize) {
+export default function heroAttack(heroType, heroPosition, boardSize) {
   // дальность атаки выбранного героя
   const heroDistansAttack = characterTypeAttackDistance(heroType);
   // строка на которой находится выбранный герой
@@ -24,7 +24,8 @@ export function heroAttack(heroType, heroPosition, boardSize) {
 
   const allowedAttack = [];
   // границы площади атаки
-  let iStart, iFinish, iTop, iBottom;
+  let iStart;
+  let iFinish;
 
   // отступ влево от позиции героя для расчёта левой границы площади атаки с учётом краёв поля
   let left;
@@ -70,22 +71,22 @@ export function heroAttack(heroType, heroPosition, boardSize) {
   // индекс крайней правой верхней границы площади атвки
   iFinish = heroPosition - boardSize * top + right;
   // номер строки поля - верхней границы поля атаки
-  iTop = heroRow - top;
+  const iTop = heroRow - top;
   // номер строки поля - нижней границы поля атаки
-  iBottom = heroRow + bottom;
+  const iBottom = heroRow + bottom;
 
   // цикл по строкам поля атаки
-  for (let row = iTop; row <= iBottom; row++) {
+  for (let row = iTop; row <= iBottom; row += 1) {
     // цикл по индексам строк поля атаки
-    for (let col = iStart; col <= iFinish; col++) {
+    for (let col = iStart; col <= iFinish; col += 1) {
       // исключение позиции героя
       if (col !== heroPosition) {
         allowedAttack.push(col);
       }
     }
     // переход индексов начала и конца строки на новую строку
-    iStart = iStart + boardSize;
-    iFinish = iFinish + boardSize;
+    iStart += boardSize;
+    iFinish += boardSize;
   }
   return allowedAttack;
 }

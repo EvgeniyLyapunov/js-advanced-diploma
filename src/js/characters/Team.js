@@ -33,7 +33,7 @@ export default class Team {
     return Array.from(this.members);
   }
 
-  *[Symbol.iterator]() {
+  * [Symbol.iterator]() {
     const teamArr = this.toArray();
     for (let i = 0; i < teamArr.length; i += 1) {
       yield teamArr[i];

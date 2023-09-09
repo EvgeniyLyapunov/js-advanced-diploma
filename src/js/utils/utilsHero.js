@@ -39,17 +39,17 @@ export function finishIndexOfRow(row, boardSize) {
  */
 export function characterTypeMoveDistanse(heroType) {
   switch (heroType) {
-    case "swordsman":
-    case "undead":
+    case 'swordsman':
+    case 'undead':
       return 4;
-    case "bowman":
-    case "vampire":
+    case 'bowman':
+    case 'vampire':
       return 2;
-    case "magician":
-    case "daemon":
+    case 'magician':
+    case 'daemon':
       return 1;
     default:
-      throw new Error("В функцию передан несуществующий тип героя.");
+      throw new Error('В функцию передан несуществующий тип героя.');
   }
 }
 
@@ -60,16 +60,16 @@ export function characterTypeMoveDistanse(heroType) {
  */
 export function characterTypeAttackDistance(heroType) {
   switch (heroType) {
-    case "swordsman":
-    case "undead":
+    case 'swordsman':
+    case 'undead':
       return 1;
-    case "bowman":
-    case "vampire":
+    case 'bowman':
+    case 'vampire':
       return 2;
-    case "magician":
-    case "daemon":
+    case 'magician':
+    case 'daemon':
       return 4;
     default:
-      throw new Error("В функцию передан несуществующий тип героя.");
+      throw new Error('В функцию передан несуществующий тип героя.');
   }
 }

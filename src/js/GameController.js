@@ -1,19 +1,18 @@
-import { generateTeam, newTeam, newTeamWithSurvivors } from "./generators";
-import { startPositions } from "./utils/utils";
-import { heroFormatInfo } from "./utils/utilsHero";
-import PositionedCharacter from "./characters/PositionedCharacter";
-import Bowman from "./characters/Bowman";
-import Swordsman from "./characters/Swordsman";
-import Magician from "./characters/Magician";
-import Vampire from "./characters/Vampire";
-import Undead from "./characters/Undead";
-import Daemon from "./characters/Daemon";
-import GameState from "./GameState";
-import GamePlay from "./GamePlay";
-import cursors from "./cursors";
-import { heroMove } from "./heroMove";
-import { heroAttack } from "./heroAttack";
-import { opponentsMove } from "./opponentsMove";
+import { newTeam, newTeamWithSurvivors } from './generators';
+import { heroFormatInfo } from './utils/utilsHero';
+import Bowman from './characters/Bowman';
+import Swordsman from './characters/Swordsman';
+import Magician from './characters/Magician';
+import Vampire from './characters/Vampire';
+import Undead from './characters/Undead';
+import Daemon from './characters/Daemon';
+import GameState from './GameState';
+import GamePlay from './GamePlay';
+import cursors from './cursors';
+import heroMove from './heroMove';
+import heroAttack from './heroAttack';
+import opponentsMove from './opponentsMove';
+import Character from './characters/Character';
 
 export default class GameController {
   constructor(gamePlay, stateService) {
@@ -23,27 +22,29 @@ export default class GameController {
     this.evilAllowedTypes = [Vampire, Undead, Daemon];
     this.teamCount = 3;
     this.HeroLevel = 1;
+    this.currentTheme = null;
     this.goodTeamPositions = [];
     this.evilTeamPositions = [];
   }
 
   init() {
-    this.gamePlay.drawUi(GameState.nextTheme());
+    this.currentTheme = GameState.nextTheme();
+    this.gamePlay.drawUi(this.currentTheme);
 
     this.goodTeamPositions = newTeam(
       this.goodAllowedTypes,
-      "good",
+      'good',
       this.HeroLevel,
       this.teamCount,
-      this.gamePlay.boardSize
+      this.gamePlay.boardSize,
     );
 
     this.evilTeamPositions = newTeam(
       this.evilAllowedTypes,
-      "evil",
+      'evil',
       this.HeroLevel,
       this.teamCount,
-      this.gamePlay.boardSize
+      this.gamePlay.boardSize,
     );
 
     this.gamePlay.redrawPositions([
@@ -54,91 +55,94 @@ export default class GameController {
     this.gamePlay.addCellEnterListener(this.onCellEnter.bind(this));
     this.gamePlay.addCellLeaveListener(this.onCellLeave.bind(this));
     this.gamePlay.addCellClickListener(this.onCellClick.bind(this));
+
+    this.gamePlay.addNewGameListener(this.onNewGame.bind(this));
+    this.gamePlay.addSaveGameListener(this.onSaveGame.bind(this));
+    this.gamePlay.addLoadGameListener(this.onLoadGame.bind(this));
     // TODO: load saved stated from stateService
   }
 
   onCellClick(index) {
     // TODO: react to click
     // клик игнорируется - ход противника
-    if (GameState.currentMove === "evil") {
+    if (GameState.currentMove === 'evil') {
       return;
     }
 
     // клик по вражескому герою
-    for (let unit of this.evilTeamPositions) {
+    for (const unit of this.evilTeamPositions) {
       if (unit.position === index) {
         if (!GameState.selectedHero) {
-          GamePlay.showError("This is an enemny!");
+          GamePlay.showError('This is an enemny!');
           return;
-        } else {
-          // проверяем поле атаки героя
-          GameState.currentMove = "evil";
-          if (GameState.allowedAttack.includes(index)) {
-            this.gamePlay.deselectCell(GameState.selectedHero.position);
-            this.gamePlay.deselectCell(index);
-            const damage = Math.max(
-              GameState.selectedHero.character.attack - unit.character.defence,
-              GameState.selectedHero.character.attack * 0.5
-            );
-            GameState.totalReset();
-            this.gamePlay.showDamage(index, damage).then(() => {
-              unit.character.health -= damage;
-              if (unit.character.health <= 0) {
-                this.evilTeamPositions = this.evilTeamPositions.filter(
-                  (char) => char.character.health > 0
-                );
-              }
+        }
+        // проверяем поле атаки героя
+        GameState.currentMove = 'evil';
+        if (GameState.allowedAttack.includes(index)) {
+          this.gamePlay.deselectCell(GameState.selectedHero.position);
+          this.gamePlay.deselectCell(index);
+          const damage = Math.max(
+            GameState.selectedHero.character.attack - unit.character.defence,
+            GameState.selectedHero.character.attack * 0.5,
+          );
+          GameState.totalReset();
+          this.gamePlay.showDamage(index, damage).then(() => {
+            unit.character.health -= damage;
+            if (unit.character.health <= 0) {
+              this.evilTeamPositions = this.evilTeamPositions.filter(
+                (char) => char.character.health > 0,
+              );
+            }
 
-              // все враги убиты - переход на новый уровень
-              if (this.evilTeamPositions.length === 0) {
-                this.gamePlay.drawUi(GameState.nextTheme());
-                this.HeroLevel = this.HeroLevel + 1;
-                console.log(this.HeroLevel);
-                this.goodTeamPositions = newTeamWithSurvivors(
-                  this.goodTeamPositions,
-                  this.goodAllowedTypes,
-                  this.HeroLevel,
-                  this.teamCount,
-                  this.gamePlay.boardSize
-                );
+            // все враги убиты - переход на новый уровень
+            if (this.evilTeamPositions.length === 0) {
+              this.currentTheme = GameState.nextTheme();
+              this.gamePlay.drawUi(this.currentTheme);
+              this.HeroLevel += 1;
+              this.goodTeamPositions = newTeamWithSurvivors(
+                this.goodTeamPositions,
+                this.goodAllowedTypes,
+                this.HeroLevel,
+                this.teamCount,
+                this.gamePlay.boardSize,
+              );
 
-                this.evilTeamPositions = newTeam(
-                  this.evilAllowedTypes,
-                  "evil",
-                  this.HeroLevel,
-                  this.teamCount,
-                  this.gamePlay.boardSize
-                );
-
-                this.gamePlay.redrawPositions([
-                  ...this.goodTeamPositions,
-                  ...this.evilTeamPositions,
-                ]);
-                GameState.currentMove = "good";
-                return;
-              }
+              this.evilTeamPositions = newTeam(
+                this.evilAllowedTypes,
+                'evil',
+                this.HeroLevel,
+                this.teamCount,
+                this.gamePlay.boardSize,
+              );
 
               this.gamePlay.redrawPositions([
                 ...this.goodTeamPositions,
                 ...this.evilTeamPositions,
               ]);
-              opponentsMove.call(this, this);
-            });
-            GameState.currentMove = "good";
-            return;
-          }
+              GameState.currentMove = 'good';
+              return;
+            }
+
+            this.gamePlay.redrawPositions([
+              ...this.goodTeamPositions,
+              ...this.evilTeamPositions,
+            ]);
+            opponentsMove.call(this);
+          });
+          GameState.currentMove = 'good';
+          return;
         }
       }
     }
 
     // проверка индекса клетки клика с индексами героев игрока
-    for (let hero of this.goodTeamPositions) {
+    for (const hero of this.goodTeamPositions) {
       // если клик по клетке с героем
       if (hero.position === index) {
         // если клик по герою который не выбран ранее, но ранее уже выбран другой герой из команды
         if (
-          GameState.selectedHero !== null &&
-          GameState.selectedHero.position !== index
+          GameState.selectedHero !== null
+          && GameState.selectedHero.position !== index
         ) {
           // снимаем выделение с ранее выбранного героя
           this.gamePlay.deselectCell(GameState.selectedHero.position);
@@ -150,20 +154,21 @@ export default class GameController {
           GameState.allowedMoves = heroMove(
             GameState.selectedHero.character.type,
             GameState.selectedHero.position,
-            this.gamePlay.boardSize
+            this.gamePlay.boardSize,
           );
           // запоминаем индексы всех возможных атак выбранного героя
           GameState.allowedAttack = heroAttack(
             GameState.selectedHero.character.type,
             GameState.selectedHero.position,
-            this.gamePlay.boardSize
+            this.gamePlay.boardSize,
           );
           return;
           // клик в уже выбранного героя
           // снимаем выделение и забываем выбор
-        } else if (
-          GameState.selectedHero !== null &&
-          GameState.selectedHero.position === index
+        }
+        if (
+          GameState.selectedHero !== null
+          && GameState.selectedHero.position === index
         ) {
           this.gamePlay.deselectCell(GameState.selectedHero.position);
           GameState.totalReset();
@@ -175,12 +180,12 @@ export default class GameController {
         GameState.allowedMoves = heroMove(
           GameState.selectedHero.character.type,
           GameState.selectedHero.position,
-          this.gamePlay.boardSize
+          this.gamePlay.boardSize,
         );
         GameState.allowedAttack = heroAttack(
           GameState.selectedHero.character.type,
           GameState.selectedHero.position,
-          this.gamePlay.boardSize
+          this.gamePlay.boardSize,
         );
         return;
       }
@@ -204,8 +209,8 @@ export default class GameController {
         // сброс выбранного героя и переход хода
         GameState.totalReset();
 
-        GameState.currentMove = "evil";
-        opponentsMove.call(this, this);
+        GameState.currentMove = 'evil';
+        opponentsMove.call(this);
         return;
       }
       // клик по пустой клетке
@@ -216,18 +221,18 @@ export default class GameController {
 
   onCellEnter(index) {
     // TODO: react to mouse enter
-    if (GameState.currentMove === "evil") {
+    if (GameState.currentMove === 'evil') {
       return;
     }
     // курсор входит в пустую клетку, но герой уже выбран
     if (GameState.selectedHero && GameState.selectedHero.position !== index) {
       // если индекс в поле атаки
       if (GameState.allowedAttack.includes(index)) {
-        for (let unit of this.evilTeamPositions) {
+        for (const unit of this.evilTeamPositions) {
           // если враг в поле атаки
           if (unit.position === index) {
             this.gamePlay.setCursor(cursors.crosshair);
-            this.gamePlay.selectCell(index, "red");
+            this.gamePlay.selectCell(index, 'red');
             return;
           }
         }
@@ -235,34 +240,34 @@ export default class GameController {
       // если индекс в вариантах движения
       if (GameState.allowedMoves.includes(index)) {
         // если двигаться на клетку врага
-        for (let hero of this.evilTeamPositions) {
+        for (const hero of this.evilTeamPositions) {
           if (hero.position === index) {
             this.gamePlay.setCursor(cursors.notallowed);
             return;
           }
         }
         // если двигаться на клетку союзника
-        for (let hero of this.goodTeamPositions) {
+        for (const hero of this.goodTeamPositions) {
           if (hero.position === index) {
             this.gamePlay.setCursor(cursors.pointer);
             return;
           }
         }
         // если пустая клетка
-        this.gamePlay.selectCell(index, "green");
+        this.gamePlay.selectCell(index, 'green');
         this.gamePlay.setCursor(cursors.pointer);
         return;
       }
 
       // на врага вне досягаемости для хода и атаки
-      for (let unit of this.evilTeamPositions) {
+      for (const unit of this.evilTeamPositions) {
         if (unit.position === index) {
           this.gamePlay.setCursor(cursors.notallowed);
           return;
         }
       }
       // на союзника вне досягаемости для хода
-      for (let hero of this.goodTeamPositions) {
+      for (const hero of this.goodTeamPositions) {
         if (hero.position === index) {
           this.gamePlay.setCursor(cursors.pointer);
           return;
@@ -275,7 +280,7 @@ export default class GameController {
     // если герой не выбран
     if (!GameState.selectedHero) {
       // на клетки героев добра
-      for (let hero of this.goodTeamPositions) {
+      for (const hero of this.goodTeamPositions) {
         if (hero.position === index) {
           this.gamePlay.setCursor(cursors.pointer);
           const message = heroFormatInfo(hero.character);
@@ -284,7 +289,7 @@ export default class GameController {
         }
       }
       // на клетки героев зла
-      for (let unit of this.evilTeamPositions) {
+      for (const unit of this.evilTeamPositions) {
         if (unit.position === index) {
           this.gamePlay.setCursor(cursors.notallowed);
           const message = heroFormatInfo(unit.character);
@@ -302,10 +307,65 @@ export default class GameController {
     this.gamePlay.setCursor(cursors.auto);
     this.gamePlay.hideCellTooltip(index);
     if (
-      GameState.selectedHero !== null &&
-      GameState.selectedHero.position !== index
+      GameState.selectedHero !== null
+      && GameState.selectedHero.position !== index
     ) {
       this.gamePlay.deselectCell(index);
+    }
+  }
+
+  onNewGame() {
+    GameState.newGame();
+    this.gamePlay.clearListenersForNewGame();
+    this.HeroLevel = 1;
+    this.goodTeamPositions = [];
+    this.evilTeamPositions = [];
+    this.init();
+  }
+
+  onSaveGame() {
+    const saveObject = GameState.saveDataGame(
+      this.HeroLevel,
+      this.currentTheme,
+      this.goodTeamPositions,
+      this.evilTeamPositions,
+    );
+
+    this.stateService.save(saveObject);
+    setTimeout(() => {
+      if (localStorage.getItem('state')) {
+        alert('Текущая игра успешно сохранена.');
+      }
+    }, 500);
+  }
+
+  onLoadGame() {
+    const loadObject = this.stateService.load();
+    if (loadObject) {
+      this.HeroLevel = loadObject.level;
+      this.currentTheme = loadObject.currentTheme;
+
+      loadObject.goodTeam.map((item) => {
+        const obj = Object.setPrototypeOf(item.character, Character.prototype);
+        return obj;
+      });
+      loadObject.evilTeam.forEach((item) => {
+        const obj = Object.setPrototypeOf(item.character, Character.prototype);
+        return obj;
+      });
+
+      this.goodTeamPositions = loadObject.goodTeam;
+      this.evilTeamPositions = loadObject.evilTeam;
+
+      GameState.newGame();
+      GameState.themes = loadObject.nextThemes;
+      this.gamePlay.drawUi(this.currentTheme);
+      this.gamePlay.redrawPositions([
+        ...this.goodTeamPositions,
+        ...this.evilTeamPositions,
+      ]);
+    } else {
+      throw new Error('Ошибка в загрузке сохранения игры.');
     }
   }
 }

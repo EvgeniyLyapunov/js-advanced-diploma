@@ -12,40 +12,49 @@ export function calcTileType(index, boardSize) {
   switch (true) {
     // top
     case index === 0:
-      return "top-left";
+      return 'top-left';
     case row === 1 && index < finishRow:
-      return "top";
+      return 'top';
     case row === 1 && index === finishRow:
-      return "top-right";
+      return 'top-right';
     // center
     case row < boardSize && index === startRow:
-      return "left";
+      return 'left';
     case row < boardSize && index === finishRow:
-      return "right";
+      return 'right';
     case row < boardSize && index < finishRow:
-      return "center";
+      return 'center';
     // bottom
     case row === boardSize && index === startRow:
-      return "bottom-left";
+      return 'bottom-left';
     case row === boardSize && index === finishRow:
-      return "bottom-right";
+      return 'bottom-right';
     case row === boardSize && index < finishRow:
-      return "bottom";
+      return 'bottom';
     default:
-      return "";
+      return '';
   }
 }
 
 export function calcHealthLevel(health) {
   if (health < 15) {
-    return "critical";
+    return 'critical';
   }
 
   if (health < 50) {
-    return "normal";
+    return 'normal';
   }
 
-  return "high";
+  return 'high';
+}
+
+function currentTeamStartPositions(start, teamCount) {
+  const startHeroPositions = new Set();
+  while (startHeroPositions.size !== teamCount) {
+    const index = Math.floor(Math.random() * start.length);
+    startHeroPositions.add(start[index]);
+  }
+  return Array.from(startHeroPositions);
 }
 
 /**
@@ -59,28 +68,19 @@ export function calcHealthLevel(health) {
 export function startPositions(boardSize, teamType, teamCount) {
   const positions = [];
   switch (teamType) {
-    case "good":
-      for (let i = 1; i <= boardSize; i++) {
+    case 'good':
+      for (let i = 1; i <= boardSize; i += 1) {
         positions.push(boardSize * i - boardSize);
         positions.push(boardSize * i - boardSize + 1);
       }
       return currentTeamStartPositions(positions, teamCount);
-    case "evil":
-      for (let i = 1; i <= boardSize; i++) {
+    case 'evil':
+      for (let i = 1; i <= boardSize; i += 1) {
         positions.push(boardSize * i - 1);
         positions.push(boardSize * i - 2);
       }
       return currentTeamStartPositions(positions, teamCount);
     default:
-      throw new Error("Переданный аргументом тип команды не определён.");
+      throw new Error('Переданный аргументом тип команды не определён.');
   }
-}
-
-function currentTeamStartPositions(startPositions, teamCount) {
-  const startHeroPositions = new Set();
-  while (startHeroPositions.size !== teamCount) {
-    const index = Math.floor(Math.random() * startPositions.length);
-    startHeroPositions.add(startPositions[index]);
-  }
-  return Array.from(startHeroPositions);
 }

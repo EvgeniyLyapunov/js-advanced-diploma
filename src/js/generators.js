@@ -1,6 +1,6 @@
-import Team from "./characters/Team";
-import { startPositions } from "./utils/utils";
-import PositionedCharacter from "./characters/PositionedCharacter";
+import Team from './characters/Team';
+import { startPositions } from './utils/utils';
+import PositionedCharacter from './characters/PositionedCharacter';
 
 /**
  * Формирует экземпляр персонажа из массива allowedTypes со
@@ -14,10 +14,9 @@ import PositionedCharacter from "./characters/PositionedCharacter";
  */
 export function* characterGenerator(allowedTypes, level = 1) {
   while (true) {
-    const typeForCreate =
-      allowedTypes[Math.floor(Math.random() * allowedTypes.length)];
+    const TypeForCreate = allowedTypes[Math.floor(Math.random() * allowedTypes.length)];
 
-    yield new typeForCreate(level);
+    yield new TypeForCreate(level);
   }
 }
 
@@ -26,27 +25,27 @@ export function* characterGenerator(allowedTypes, level = 1) {
  * @param allowedTypes массив классов
  * @param maxLevel максимальный возможный уровень персонажа
  * @param characterCount количество персонажей, которое нужно сформировать
- * @returns экземпляр Team, хранящий экземпляры персонажей. Количество персонажей в команде - characterCount
+ * @returns экземпляр Team, хранящий экземпляры персонажей
  * */
 export function generateTeam(allowedTypes, level, characterCount) {
   const team = new Team();
   const gen = characterGenerator(allowedTypes, 1);
-  for (let i = 0; i < characterCount; i++) {
+  for (let i = 0; i < characterCount; i += 1) {
     if (level === 1) {
       team.add(gen.next().value);
     } else {
       const char = gen.next().value;
-      for (let i = 2; i <= level; i++) {
+      for (let j = 2; j <= level; j += 1) {
         char.attack = Math.max(
           char.attack,
-          (char.attack * (80 + char.health)) / 100
+          (char.attack * (80 + char.health)) / 100,
         );
         char.defence = Math.max(
           char.defence,
-          (char.defence * (80 + char.health)) / 100
+          (char.defence * (80 + char.health)) / 100,
         );
         char.health = char.health + 80 > 100 ? 100 : char.health + 80;
-        char.level = i;
+        char.level = j;
       }
       team.add(char);
     }
@@ -59,38 +58,38 @@ export function newTeamWithSurvivors(
   allowedTypes,
   nextLevel,
   teamCount,
-  boardSize
+  boardSize,
 ) {
   const oldHeroes = survivors.map((hero) => {
-    hero.character.attack = Math.max(
-      hero.character.attack,
-      (hero.character.attack * (80 + hero.character.health)) / 100
+    const newHero = hero.character;
+    newHero.attack = Math.max(
+      newHero.attack,
+      (newHero.attack * (80 + newHero.health)) / 100,
     );
-    hero.character.defence = Math.max(
-      hero.character.defence,
-      (hero.character.defence * (80 + hero.character.health)) / 100
+    newHero.defence = Math.max(
+      newHero.defence,
+      (newHero.defence * (80 + newHero.health)) / 100,
     );
-    hero.character.health =
-      hero.character.health + 80 > 100 ? 100 : hero.character.health + 80;
-    hero.character.level = nextLevel;
-    return hero.character;
+    newHero.health = newHero.health + 80 > 100 ? 100 : newHero.health + 80;
+    newHero.level = nextLevel;
+    return newHero;
   });
   const newHeroes = generateTeam(
     allowedTypes,
     nextLevel,
-    teamCount - oldHeroes.length
+    teamCount - oldHeroes.length,
   ).toArray();
   const nextGoodTeam = [...oldHeroes, ...newHeroes];
-  const startIndex = startPositions(boardSize, "good", teamCount);
-  return nextGoodTeam.map((hero, i) => {
-    return new PositionedCharacter(hero, startIndex[i]);
-  });
+  const startIndex = startPositions(boardSize, 'good', teamCount);
+  return nextGoodTeam.map(
+    (hero, i) => new PositionedCharacter(hero, startIndex[i]),
+  );
 }
 
 export function newTeam(allowedTypes, type, nextLevel, teamCount, boardSize) {
   const newHeroes = generateTeam(allowedTypes, nextLevel, teamCount).toArray();
   const startIndex = startPositions(boardSize, type, teamCount);
-  return newHeroes.map((hero, i) => {
-    return new PositionedCharacter(hero, startIndex[i]);
-  });
+  return newHeroes.map(
+    (hero, i) => new PositionedCharacter(hero, startIndex[i]),
+  );
 }
