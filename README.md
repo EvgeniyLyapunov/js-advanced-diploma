@@ -2,7 +2,7 @@
 
 [![Build status](https://ci.appveyor.com/api/projects/status/dtg0t4cbo6u7ff8p?svg=true)](https://ci.appveyor.com/project/EvgeniyLyapunov/js-advanced-diploma)
 
-[🔗link to game](https://evgeniylyapunov.github.io/js-advanced-diploma/)
+[🔗link to the game](https://evgeniylyapunov.github.io/js-advanced-diploma/)
 
 ## Предыстория
 
