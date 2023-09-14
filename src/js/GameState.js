@@ -1,10 +1,10 @@
 class GameState {
   constructor() {
-    this.currentMove = "good";
+    this.currentMove = 'good';
     this.allowedMoves = null;
     this.allowedAttack = null;
     this.selectedHero = null;
-    this.themes = ["mountain", "arctic", "desert", "prairie"];
+    this.themes = ['mountain', 'arctic', 'desert', 'prairie'];
 
     this.totalReset = this.totalReset.bind(this);
     this.nextTheme = this.nextTheme.bind(this);
@@ -37,8 +37,8 @@ class GameState {
 
   newGame() {
     this.totalReset();
-    this.currentMove = "good";
-    this.themes = ["mountain", "arctic", "desert", "prairie"];
+    this.currentMove = 'good';
+    this.themes = ['mountain', 'arctic', 'desert', 'prairie'];
   }
 }
 

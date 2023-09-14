@@ -6,7 +6,7 @@
   "scripts": {
     "start": "webpack serve",
     "build-dev": "webpack",
-    "build-prod": "webpack --node-env=production",
+    "build": "webpack --node-env=production",
     "clear": "rd /s /q dist",
     "lint": "eslint .",
     "test": "jest",
