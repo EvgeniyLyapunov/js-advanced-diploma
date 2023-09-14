@@ -1,5 +1,5 @@
-import { heroAttack } from "../heroAttack";
-import { heroMove } from "../heroMove";
+import heroAttack from "../heroAttack";
+import heroMove from "../heroMove";
 
 const boardSize = 8;
 
