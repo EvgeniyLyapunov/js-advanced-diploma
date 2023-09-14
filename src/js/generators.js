@@ -1,6 +1,6 @@
-import Team from "./characters/Team";
-import { startPositions } from "./utils/utils";
-import PositionedCharacter from "./characters/PositionedCharacter";
+import Team from './characters/Team';
+import { startPositions } from './utils/utils';
+import PositionedCharacter from './characters/PositionedCharacter';
 
 /**
  * Формирует экземпляр персонажа из массива allowedTypes со
@@ -14,8 +14,7 @@ import PositionedCharacter from "./characters/PositionedCharacter";
  */
 export function* characterGenerator(allowedTypes, level = 1) {
   while (true) {
-    const TypeForCreate =
-      allowedTypes[Math.floor(Math.random() * allowedTypes.length)];
+    const TypeForCreate = allowedTypes[Math.floor(Math.random() * allowedTypes.length)];
 
     yield new TypeForCreate(level);
   }
@@ -60,7 +59,7 @@ export function newTeamWithSurvivors(
   allowedTypes,
   nextLevel,
   teamCount,
-  boardSize
+  boardSize,
 ) {
   const oldHeroes = survivors.map((hero) => {
     const newHero = hero.character;
@@ -80,12 +79,12 @@ export function newTeamWithSurvivors(
   const newHeroes = generateTeam(
     allowedTypes,
     nextLevel,
-    teamCount - oldHeroes.length
+    teamCount - oldHeroes.length,
   ).toArray();
   const nextGoodTeam = [...oldHeroes, ...newHeroes];
-  const startIndex = startPositions(boardSize, "good", teamCount);
+  const startIndex = startPositions(boardSize, 'good', teamCount);
   return nextGoodTeam.map(
-    (hero, i) => new PositionedCharacter(hero, startIndex[i])
+    (hero, i) => new PositionedCharacter(hero, startIndex[i]),
   );
 }
 
@@ -93,6 +92,6 @@ export function newTeam(allowedTypes, type, nextLevel, teamCount, boardSize) {
   const newHeroes = generateTeam(allowedTypes, nextLevel, teamCount).toArray();
   const startIndex = startPositions(boardSize, type, teamCount);
   return newHeroes.map(
-    (hero, i) => new PositionedCharacter(hero, startIndex[i])
+    (hero, i) => new PositionedCharacter(hero, startIndex[i]),
   );
 }
