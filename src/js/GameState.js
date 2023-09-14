@@ -1,41 +1,45 @@
-export default class GameState {
-  static currentMove = 'good';
+class GameState {
+  constructor() {
+    this.currentMove = "good";
+    this.allowedMoves = null;
+    this.allowedAttack = null;
+    this.selectedHero = null;
+    this.themes = ["mountain", "arctic", "desert", "prairie"];
 
-  static allowedMoves = null;
-
-  static allowedAttack = null;
-
-  static selectedHero = null;
-
-  static themes = ['mountain', 'arctic', 'desert', 'prairie'];
-
-  static totalReset() {
-    GameState.allowedMoves = null;
-    GameState.allowedAttack = null;
-    GameState.selectedHero = null;
+    this.totalReset = this.totalReset.bind(this);
+    this.nextTheme = this.nextTheme.bind(this);
+    this.saveDataGame = this.saveDataGame.bind(this);
   }
 
-  static nextTheme() {
-    if (GameState.themes.length > 1) {
-      return GameState.themes.pop();
+  totalReset() {
+    this.allowedMoves = null;
+    this.allowedAttack = null;
+    this.selectedHero = null;
+  }
+
+  nextTheme() {
+    if (this.themes.length > 1) {
+      return this.themes.pop();
     }
-    return GameState.themes[0];
+    return this.themes[0];
   }
 
-  static saveDataGame(level, currentTheme, goodTeam, evilTeam) {
+  saveDataGame(level, currentTheme, goodTeam, evilTeam) {
     const saveDataObject = {
       level,
       currentTheme,
-      nextThemes: GameState.themes,
+      nextThemes: this.themes,
       goodTeam,
       evilTeam,
     };
     return saveDataObject;
   }
 
-  static newGame() {
-    GameState.totalReset();
-    GameState.currentMove = 'good';
-    GameState.themes = ['mountain', 'arctic', 'desert', 'prairie'];
+  newGame() {
+    this.totalReset();
+    this.currentMove = "good";
+    this.themes = ["mountain", "arctic", "desert", "prairie"];
   }
 }
+
+export default GameState;

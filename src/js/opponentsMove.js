@@ -1,6 +1,5 @@
-import heroMove from './heroMove';
-import heroAttack from './heroAttack';
-import GameState from './GameState';
+import heroMove from "./heroMove";
+import heroAttack from "./heroAttack";
 
 const boardSize = 8;
 
@@ -24,14 +23,14 @@ export default function opponentsMove() {
     const allowedAttack = heroAttack(
       unit.character.type,
       unit.position,
-      boardSize,
+      boardSize
     );
     for (const hero of this.goodTeamPositions) {
       if (allowedAttack.includes(hero.position)) {
-        this.gamePlay.selectCell(unit.position, 'blood');
+        this.gamePlay.selectCell(unit.position, "blood");
         new Promise((resolve) => {
           setTimeout(() => {
-            this.gamePlay.selectCell(hero.position, 'red');
+            this.gamePlay.selectCell(hero.position, "red");
             setTimeout(() => {
               resolve();
             }, 500);
@@ -40,8 +39,8 @@ export default function opponentsMove() {
           const damage = Math.floor(
             Math.max(
               unit.character.attack - hero.character.defence,
-              unit.character.attack * 0.5,
-            ),
+              unit.character.attack * 0.5
+            )
           );
           hero.character.health -= damage;
           this.gamePlay.showDamage(hero.position, damage).then(() => {
@@ -49,7 +48,7 @@ export default function opponentsMove() {
             this.gamePlay.deselectCell(hero.position);
             if (hero.character.health <= 0) {
               this.goodTeamPositions = this.goodTeamPositions.filter(
-                (char) => char.character.health > 0,
+                (char) => char.character.health > 0
               );
             }
             this.gamePlay.redrawPositions([
@@ -59,23 +58,24 @@ export default function opponentsMove() {
 
             // зло победило
             if (this.goodTeamPositions.length === 0) {
-              GameState.currentMove = 'evil';
+              this.gameState.currentMove = "evil";
             }
           });
         });
-        GameState.currentMove = 'good';
+        this.gameState.currentMove = "good";
         return;
       }
     }
   }
   // проверка возможности ходить, если герои вне атаки
-  const unit = this.evilTeamPositions[
-    Math.floor(Math.random() * this.evilTeamPositions.length)
-  ];
+  const unit =
+    this.evilTeamPositions[
+      Math.floor(Math.random() * this.evilTeamPositions.length)
+    ];
   const allowedMove = heroMove(unit.character.type, unit.position, boardSize);
   // проверка возможности подойти к герою
   for (const hero of this.goodTeamPositions) {
-    const nearHeroTiles = heroMove('magician', hero.position, boardSize);
+    const nearHeroTiles = heroMove("magician", hero.position, boardSize);
     const uniqueSteps = new Set(allowedMove);
     let goUnitToHero;
     for (const tile of nearHeroTiles) {
@@ -87,7 +87,7 @@ export default function opponentsMove() {
       }
     }
     if (goUnitToHero) {
-      this.gamePlay.selectCell(unit.position, 'blood');
+      this.gamePlay.selectCell(unit.position, "blood");
       new Promise((resolve) => {
         setTimeout(() => {
           resolve();
@@ -100,19 +100,20 @@ export default function opponentsMove() {
           ...this.evilTeamPositions,
         ]);
       });
-      GameState.currentMove = 'good';
+      this.gameState.currentMove = "good";
       return;
     }
   }
   // ход юнита выбирается через random()
-  const rndUnit = this.evilTeamPositions[
-    Math.floor(Math.random() * this.evilTeamPositions.length)
-  ];
-  this.gamePlay.selectCell(rndUnit.position, 'blood');
+  const rndUnit =
+    this.evilTeamPositions[
+      Math.floor(Math.random() * this.evilTeamPositions.length)
+    ];
+  this.gamePlay.selectCell(rndUnit.position, "blood");
   const allowedMoveRndUnit = heroMove(
     rndUnit.character.type,
     rndUnit.position,
-    boardSize,
+    boardSize
   );
   new Promise((resolve) => {
     let rndIndexGo = -1;
@@ -121,7 +122,7 @@ export default function opponentsMove() {
       rndIndexGo = checkIndexGo(
         allowedMoveRndUnit[ix],
         this.evilTeamPositions,
-        this.goodTeamPositions,
+        this.goodTeamPositions
       );
     }
     setTimeout(() => {
@@ -135,5 +136,5 @@ export default function opponentsMove() {
       ...this.evilTeamPositions,
     ]);
   });
-  GameState.currentMove = 'good';
+  this.gameState.currentMove = "good";
 }
