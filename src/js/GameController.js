@@ -1,18 +1,18 @@
-import { newTeam, newTeamWithSurvivors } from './generators';
-import { heroFormatInfo } from './utils/utilsHero';
-import Bowman from './characters/Bowman';
-import Swordsman from './characters/Swordsman';
-import Magician from './characters/Magician';
-import Vampire from './characters/Vampire';
-import Undead from './characters/Undead';
-import Daemon from './characters/Daemon';
-import GameState from './GameState';
-import GamePlay from './GamePlay';
-import cursors from './cursors';
-import heroMove from './heroMove';
-import heroAttack from './heroAttack';
-import opponentsMove from './opponentsMove';
-import Character from './characters/Character';
+import { newTeam, newTeamWithSurvivors } from "./generators";
+import { heroFormatInfo } from "./utils/utilsHero";
+import Bowman from "./characters/Bowman";
+import Swordsman from "./characters/Swordsman";
+import Magician from "./characters/Magician";
+import Vampire from "./characters/Vampire";
+import Undead from "./characters/Undead";
+import Daemon from "./characters/Daemon";
+import GameState from "./GameState";
+import GamePlay from "./GamePlay";
+import cursors from "./cursors";
+import heroMove from "./heroMove";
+import heroAttack from "./heroAttack";
+import opponentsMove from "./opponentsMove";
+import Character from "./characters/Character";
 
 export default class GameController {
   constructor(gamePlay, stateService) {
@@ -35,18 +35,18 @@ export default class GameController {
 
     this.goodTeamPositions = newTeam(
       this.goodAllowedTypes,
-      'good',
+      "good",
       this.HeroLevel,
       this.teamCount,
-      this.gamePlay.boardSize,
+      this.gamePlay.boardSize
     );
 
     this.evilTeamPositions = newTeam(
       this.evilAllowedTypes,
-      'evil',
+      "evil",
       this.HeroLevel,
       this.teamCount,
-      this.gamePlay.boardSize,
+      this.gamePlay.boardSize
     );
 
     this.gamePlay.redrawPositions([
@@ -67,7 +67,7 @@ export default class GameController {
   onCellClick(index) {
     // TODO: react to click
     // клик игнорируется - ход противника
-    if (this.gameState.currentMove === 'evil') {
+    if (this.gameState.currentMove === "evil") {
       return;
     }
 
@@ -75,28 +75,38 @@ export default class GameController {
     for (const unit of this.evilTeamPositions) {
       if (unit.position === index) {
         if (!this.gameState.selectedHero) {
-          GamePlay.showError('This is an enemny!');
+          GamePlay.showError("This is an enemny!");
           return;
         }
         // проверяем поле атаки героя
-        this.gameState.currentMove = 'evil';
+        this.gameState.currentMove = "evil";
         if (this.gameState.allowedAttack.includes(index)) {
           this.gamePlay.deselectCell(this.gameState.selectedHero.position);
           this.gamePlay.deselectCell(index);
-          const damage = Math.max(
-            this.gameState.selectedHero.character.attack
-              - unit.character.defence,
-            this.gameState.selectedHero.character.attack * 0.5,
+          const damage = Math.floor(
+            Math.max(
+              this.gameState.selectedHero.character.attack -
+                unit.character.defence,
+              this.gameState.selectedHero.character.attack * 0.5
+            )
           );
           this.gameState.totalReset();
           this.gamePlay.showDamage(index, damage).then(() => {
             unit.character.health -= damage;
             if (unit.character.health <= 0) {
               this.evilTeamPositions = this.evilTeamPositions.filter(
-                (char) => char.character.health > 0,
+                (char) => char.character.health > 0
               );
             }
 
+            if (this.evilTeamPositions.length === 0 && this.HeroLevel === 4) {
+              this.gamePlay.redrawPositions([
+                ...this.goodTeamPositions,
+                ...this.evilTeamPositions,
+              ]);
+              this.gameState.currentMove = "evil";
+              return;
+            }
             // все враги убиты - переход на новый уровень
             if (this.evilTeamPositions.length === 0) {
               this.currentTheme = this.gameState.nextTheme();
@@ -107,22 +117,22 @@ export default class GameController {
                 this.goodAllowedTypes,
                 this.HeroLevel,
                 this.teamCount,
-                this.gamePlay.boardSize,
+                this.gamePlay.boardSize
               );
 
               this.evilTeamPositions = newTeam(
                 this.evilAllowedTypes,
-                'evil',
+                "evil",
                 this.HeroLevel,
                 this.teamCount,
-                this.gamePlay.boardSize,
+                this.gamePlay.boardSize
               );
 
               this.gamePlay.redrawPositions([
                 ...this.goodTeamPositions,
                 ...this.evilTeamPositions,
               ]);
-              this.gameState.currentMove = 'good';
+              this.gameState.currentMove = "good";
               return;
             }
 
@@ -132,7 +142,7 @@ export default class GameController {
             ]);
             opponentsMove.call(this);
           });
-          this.gameState.currentMove = 'good';
+          this.gameState.currentMove = "good";
           return;
         }
       }
@@ -144,8 +154,8 @@ export default class GameController {
       if (hero.position === index) {
         // если клик по герою который не выбран ранее, но ранее уже выбран другой герой из команды
         if (
-          this.gameState.selectedHero !== null
-          && this.gameState.selectedHero.position !== index
+          this.gameState.selectedHero !== null &&
+          this.gameState.selectedHero.position !== index
         ) {
           // снимаем выделение с ранее выбранного героя
           this.gamePlay.deselectCell(this.gameState.selectedHero.position);
@@ -157,21 +167,21 @@ export default class GameController {
           this.gameState.allowedMoves = heroMove(
             this.gameState.selectedHero.character.type,
             this.gameState.selectedHero.position,
-            this.gamePlay.boardSize,
+            this.gamePlay.boardSize
           );
           // запоминаем индексы всех возможных атак выбранного героя
           this.gameState.allowedAttack = heroAttack(
             this.gameState.selectedHero.character.type,
             this.gameState.selectedHero.position,
-            this.gamePlay.boardSize,
+            this.gamePlay.boardSize
           );
           return;
           // клик в уже выбранного героя
           // снимаем выделение и забываем выбор
         }
         if (
-          this.gameState.selectedHero !== null
-          && this.gameState.selectedHero.position === index
+          this.gameState.selectedHero !== null &&
+          this.gameState.selectedHero.position === index
         ) {
           this.gamePlay.deselectCell(this.gameState.selectedHero.position);
           this.gameState.totalReset();
@@ -183,12 +193,12 @@ export default class GameController {
         this.gameState.allowedMoves = heroMove(
           this.gameState.selectedHero.character.type,
           this.gameState.selectedHero.position,
-          this.gamePlay.boardSize,
+          this.gamePlay.boardSize
         );
         this.gameState.allowedAttack = heroAttack(
           this.gameState.selectedHero.character.type,
           this.gameState.selectedHero.position,
-          this.gamePlay.boardSize,
+          this.gamePlay.boardSize
         );
         return;
       }
@@ -212,7 +222,7 @@ export default class GameController {
         // сброс выбранного героя и переход хода
         this.gameState.totalReset();
 
-        this.gameState.currentMove = 'evil';
+        this.gameState.currentMove = "evil";
         opponentsMove.call(this);
         return;
       }
@@ -224,13 +234,13 @@ export default class GameController {
 
   onCellEnter(index) {
     // TODO: react to mouse enter
-    if (this.gameState.currentMove === 'evil') {
+    if (this.gameState.currentMove === "evil") {
       return;
     }
     // курсор входит в пустую клетку, но герой уже выбран
     if (
-      this.gameState.selectedHero
-      && this.gameState.selectedHero.position !== index
+      this.gameState.selectedHero &&
+      this.gameState.selectedHero.position !== index
     ) {
       // если индекс в поле атаки
       if (this.gameState.allowedAttack.includes(index)) {
@@ -238,7 +248,7 @@ export default class GameController {
           // если враг в поле атаки
           if (unit.position === index) {
             this.gamePlay.setCursor(cursors.crosshair);
-            this.gamePlay.selectCell(index, 'red');
+            this.gamePlay.selectCell(index, "red");
             return;
           }
         }
@@ -260,7 +270,7 @@ export default class GameController {
           }
         }
         // если пустая клетка
-        this.gamePlay.selectCell(index, 'green');
+        this.gamePlay.selectCell(index, "green");
         this.gamePlay.setCursor(cursors.pointer);
         return;
       }
@@ -313,8 +323,8 @@ export default class GameController {
     this.gamePlay.setCursor(cursors.auto);
     this.gamePlay.hideCellTooltip(index);
     if (
-      this.gameState.selectedHero !== null
-      && this.gameState.selectedHero.position !== index
+      this.gameState.selectedHero !== null &&
+      this.gameState.selectedHero.position !== index
     ) {
       this.gamePlay.deselectCell(index);
     }
@@ -334,13 +344,13 @@ export default class GameController {
       this.HeroLevel,
       this.currentTheme,
       this.goodTeamPositions,
-      this.evilTeamPositions,
+      this.evilTeamPositions
     );
 
     this.stateService.save(saveObject);
     setTimeout(() => {
-      if (localStorage.getItem('state')) {
-        alert('Текущая игра успешно сохранена.');
+      if (localStorage.getItem("state")) {
+        alert("Текущая игра успешно сохранена.");
       }
     }, 500);
   }
@@ -371,7 +381,7 @@ export default class GameController {
         ...this.evilTeamPositions,
       ]);
     } else {
-      throw new Error('Ошибка в загрузке сохранения игры.');
+      throw new Error("Ошибка в загрузке сохранения игры.");
     }
   }
 }
