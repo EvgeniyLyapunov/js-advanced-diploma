@@ -1,0 +1,268 @@
+:root {
+  --cell-size: 64px;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: #000;
+  font-size: 16px;
+}
+
+.btn {
+  display: inline-block;
+  font-weight: 400;
+  color: #212529;
+  background-color: #f8f9fa;
+  text-align: center;
+  vertical-align: middle;
+  padding: .375rem .75rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  border-radius: .25rem;
+  transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+  border: none;
+}
+
+.controls {
+  text-align: center;
+  margin: 50px 0;
+}
+
+.board-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-column-gap: 2px;
+  grid-row-gap: 2px;
+}
+
+.cell {
+  position: relative;
+}
+
+.cell.selected::before {
+  content: '';
+  display: block;
+  border: 4px;
+  border-radius: 32px;
+  box-sizing: border-box;
+  width: 64px;
+  width: var(--cell-size);
+  height: 64px;
+  height: var(--cell-size);
+  opacity: 0.9;
+  position: absolute;
+}
+
+.cell.selected-yellow::before {
+  border-color: #ff0;
+  border-style: solid;
+}
+
+.cell.selected-green::before {
+  border-color: #0f0;
+  border-style: dashed;
+}
+
+.cell.selected-red::before {
+  border-color: #f00;
+  border-style: dashed;
+}
+
+.cell.selected-blood::before {
+  border-color: rgb(158, 2, 2);
+  border-style: double;
+}
+
+.board.prairie {
+  --map-tile-top-left-url: url(assets/c820ba8d7fe3b1956831.png);
+  --map-tile-top-url: url(assets/b2a522bb1f37cd147811.png);
+  --map-tile-top-right-url: url(assets/9605dfd7c99b98fd75e9.png);
+  --map-tile-bottom-left-url: url(assets/95a4504bb1c894ce2703.png);
+  --map-tile-bottom-url: url(assets/449f590ba6dbc18d3ed6.png);
+  --map-tile-bottom-right-url: url(assets/ed5556e73fd2646ae0a0.png);
+  --map-tile-left-url: url(assets/83ce266bbd409b51a7b3.png);
+  --map-tile-right-url: url(assets/38ac208670d1999b0512.png);
+  --map-tile-center-url: url(assets/63aac8a9ac015d614332.png);
+}
+
+.board.desert {
+  --map-tile-top-left-url: url(assets/10560d445fbc6e4fb10d.png);
+  --map-tile-top-url: url(assets/d6c3362499a49d11929d.png);
+  --map-tile-top-right-url: url(assets/914f7aa464d39d78e707.png);
+  --map-tile-bottom-left-url: url(assets/7c68915a39432691e545.png);
+  --map-tile-bottom-url: url(assets/9b9cf5b66e7a56753c50.png);
+  --map-tile-bottom-right-url: url(assets/1c61e1a3a2bca64d41e2.png);
+  --map-tile-left-url: url(assets/ac9d13a2f8e94d15ba84.png);
+  --map-tile-right-url: url(assets/77755670db7823f46e1c.png);
+  --map-tile-center-url: url(assets/971822b11c415228f60e.png);
+}
+
+.board.arctic {
+  --map-tile-top-left-url: url(assets/eda96da4541a7d7e1715.png);
+  --map-tile-top-url: url(assets/e8269c706241db7b662f.png);
+  --map-tile-top-right-url: url(assets/9968ed433d558223b29d.png);
+  --map-tile-bottom-left-url: url(assets/f18b89a2e4898ae7d18c.png);
+  --map-tile-bottom-url: url(assets/14cf64ba6ddec7bb2438.png);
+  --map-tile-bottom-right-url: url(assets/35bf15cb2b320e71e644.png);
+  --map-tile-left-url: url(assets/4a99baf1608dc64e4fc1.png);
+  --map-tile-right-url: url(assets/1b7e4bb03d9d7edcb519.png);
+  --map-tile-center-url: url(assets/1cb7e7f6fd97525c5a87.png);
+}
+
+.board.mountain {
+  --map-tile-top-left-url: url(assets/fa61c63b9b01e9ae4578.png);
+  --map-tile-top-url: url(assets/05e708a2f221f6328998.png);
+  --map-tile-top-right-url: url(assets/6421d112d5387dd2d0b7.png);
+  --map-tile-bottom-left-url: url(assets/bec43d258a3f4fe3bc32.png);
+  --map-tile-bottom-url: url(assets/9e2c8721559a5026f670.png);
+  --map-tile-bottom-right-url: url(assets/4208d47ae5ce6659fd44.png);
+  --map-tile-left-url: url(assets/34a85e77f30c04b83b23.png);
+  --map-tile-right-url: url(assets/8298ffbad277cc76e326.png);
+  --map-tile-center-url: url(assets/9fad63c5b5880ff6df41.png);
+}
+
+.map-tile {
+  width: 64px;
+  width: var(--cell-size);
+  height: 64px;
+  height: var(--cell-size);
+}
+
+.map-tile-top-left {
+  background: var(--map-tile-top-left-url);
+}
+
+.map-tile-top {
+  background: var(--map-tile-top-url);
+}
+
+.map-tile-top-right {
+  background: var(--map-tile-top-right-url);
+}
+
+.map-tile-bottom-left {
+  background: var(--map-tile-bottom-left-url);
+}
+
+.map-tile-bottom {
+  background: var(--map-tile-bottom-url);
+}
+
+.map-tile-bottom-right {
+  background: var(--map-tile-bottom-right-url);
+}
+
+.map-tile-left {
+  background: var(--map-tile-left-url);
+}
+
+.map-tile-right {
+  background: var(--map-tile-right-url);
+}
+
+.map-tile-center {
+  background: var(--map-tile-center-url);
+}
+
+.character {
+  width: 64px;
+  width: var(--cell-size);
+  height: 64px;
+  height: var(--cell-size);
+  position: absolute;
+  z-index: 99;
+}
+
+.character.generic {
+  background: url(assets/8818b6d8b6bbe8e8f42a.png);
+}
+
+.character.bowman {
+  background: url(assets/7c185c501797d997dc02.png);
+}
+
+.character.daemon {
+  background: url(assets/c2ff702126a12def5d6f.png);
+}
+
+.character.magician {
+  background: url(assets/7a94cd4e25096ff49943.png);
+}
+
+.character.swordsman {
+  background: url(assets/f5d6458ce79c63057c40.png);
+}
+
+.character.undead {
+  background: url(assets/48ab0f097199f7aaf580.png);
+}
+
+.character.vampire {
+  background: url(assets/f27357b1f28fc367ac33.png);
+}
+
+.character.zombie {
+  background: url(assets/1777fbb9331f75627c65.png);
+}
+
+.health-level {
+  top: 2px;
+  left: 7px;
+  position: absolute;
+  width: 50px;
+  height: 4px;
+  background: #000;
+}
+
+.health-level-indicator {
+  height: 4px;
+}
+
+.health-level-indicator-high {
+  background: #0f0;
+}
+
+.health-level-indicator-normal {
+  background: #ff0;
+}
+
+.health-level-indicator-critical {
+  background: #f00;
+}
+
+.damage {
+  position: absolute;
+  width: 64px;
+  width: var(--cell-size);
+  text-align: center;
+  z-index: 999;
+  color: #f00;
+  font-weight: bold;
+  animation: 500ms fade ease-out;
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+    top: calc(64px * 0.5);
+    top: calc(var(--cell-size) * 0.5);
+    font-size: 1rem;
+  }
+  to {
+    opacity: 1;
+    top: -20px;
+    font-size: 1.5rem;
+  }
+}
+
